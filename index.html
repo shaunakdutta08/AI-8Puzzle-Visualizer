@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore real breadth-first search, inspect the FIFO frontier, and animate the shortest solution to your own 8-puzzle.">
+  <meta name="theme-color" content="#171c32">
+  <title>AI Puzzle Lab | 8-Puzzle</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="icon-puzzle" viewBox="0 0 24 24"><path d="M4 4h6v3a2 2 0 0 0 4 0V4h6v6h-3a2 2 0 0 0 0 4h3v6h-6v-3a2 2 0 0 0-4 0v3H4v-6h3a2 2 0 0 0 0-4H4Z"/></symbol>
+    <symbol id="icon-tree" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-5h14v5"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M12 5C8 2 4 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 1v16"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M3 3v18h19M7 16v-5M12 16V6M17 16V9"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+  </svg>
+  <header class="topbar">
+    <a class="brand" href="#overview"><span class="brand-mark"><svg><use href="#icon-puzzle"/></svg></span>AI Puzzle Lab <span class="brand-divider">|</span> <span class="product-name">8-Puzzle</span></a>
+    <div class="top-actions"><span class="header-note">An interactive search laboratory</span><button id="theme-toggle" class="icon-button" aria-label="Switch to dark theme" title="Change theme">◐</button><button id="menu-toggle" class="icon-button mobile-menu" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">☰</button></div>
+  </header>
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">WORKSPACE</div>
+    <nav aria-label="Main navigation">
+      <a href="#overview" data-route="overview"><svg><use href="#icon-grid"/></svg>Overview</a>
+      <a href="#solver" data-route="solver"><svg><use href="#icon-puzzle"/></svg>Puzzle Solver</a>
+      <a href="#visualization" data-route="visualization"><svg><use href="#icon-tree"/></svg>Search Visualization</a>
+      <a href="#guide" data-route="guide"><svg><use href="#icon-book"/></svg>Algorithm Guide</a>
+      <a href="#comparison" data-route="comparison"><svg><use href="#icon-chart"/></svg>Performance Comparison</a>
+      <a href="#about" data-route="about"><svg><use href="#icon-info"/></svg>About Project</a>
+    </nav>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Runs entirely in your browser<p>No account. No API. Just search.</p><div class="sidebar-course">ARTIFICIAL INTELLIGENCE<br><strong>Equal moves. Shortest path.</strong></div></div>
+  </aside>
+  <main id="main" tabindex="-1">
+    <section id="page-overview" class="page" aria-labelledby="overview-title">
+      <div class="page-eyebrow">AI PUZZLE LAB <span>/</span> EXPLORE · SEARCH · UNDERSTAND</div>
+      <div class="overview-hero">
+        <div class="hero-copy"><span class="badge"><span class="status-dot"></span> BREADTH-FIRST SEARCH</span><h1 id="overview-title">Interactive 8-Puzzle<br><span>Search Visualizer</span></h1><p>Eight tiles. One blank. A whole space of possibilities.</p><p class="hero-description">Explore how Breadth-First Search navigates a state space to discover the shortest solution. Set a puzzle, inspect the search, and watch each tile find its way home.</p><div class="hero-actions"><a class="button primary" href="#solver">Launch Puzzle Solver <svg><use href="#icon-arrow"/></svg></a><a class="button" href="#guide">Explore BFS</a></div><a class="text-link" href="#comparison">View Performance <span aria-hidden="true">↗</span></a></div>
+        <div class="hero-lab"><div class="lab-caption"><span>THE STARTING POINT</span><span class="mono">3 × 3</span></div><div id="overview-board" class="hero-board" role="img" aria-label="Example initial puzzle"></div><div class="hero-board-caption"><span class="small-square"></span> A small problem with a big search space</div><div class="hero-lab-bottom"><span>YOUR ALGORITHM</span><strong>BFS <span class="muted">/ FIFO queue</span></strong></div></div>
+      </div>
+      <div class="concepts"><article><span class="concept-number">01</span><h2>The 8-Puzzle</h2><p>Slide a neighboring tile into the blank until the board matches your goal.</p></article><article><span class="concept-number">02</span><h2>State-space search</h2><p>Every arrangement is a state. Every legal slide connects two states.</p></article><article><span class="concept-number">03</span><h2>Breadth-first search</h2><p>A FIFO queue explores all nearby states before moving one level deeper.</p></article><article><span class="concept-number">04</span><h2>The shortest path</h2><p>With equal-cost moves, the first dequeued goal gives a minimum-move solution.</p></article></div>
+      <article class="panel workflow-panel"><div class="panel-heading"><div><h2>From a puzzle to a path</h2><p>Follow the search, one idea at a time.</p></div><span class="badge neutral">THE WORKFLOW</span></div><ol class="workflow"><li>Initial state</li><li>FIFO queue</li><li>Expand state</li><li>Generate successors</li><li>Check visited</li><li>Discover goal</li><li>Reconstruct path</li></ol></article>
+    </section>
+
+    <section id="page-solver" class="page" hidden aria-labelledby="solver-title">
+      <div class="page-eyebrow">WORKSPACE <span>/</span> PUZZLE SOLVER</div>
+      <div class="page-heading"><div><h1 id="solver-title">Let’s find the shortest path.</h1><p>Configure your puzzle, run BFS, then watch the solution unfold.</p></div><span class="badge">BFS · UNINFORMED SEARCH</span></div>
+      <div class="solver-layout">
+        <article class="panel board-panel"><div class="panel-heading"><div><h2>Solution playground</h2><p>Click a tile beside the blank to make a move.</p></div><span id="board-status" class="badge neutral">Ready</span></div>
+          <div class="board-stage"><div class="current-board-wrap"><span class="board-label">CURRENT BOARD</span><div id="main-board" aria-label="Current puzzle"></div></div><div class="goal-wrap"><span class="board-label">GOAL STATE</span><div id="goal-board" role="img" aria-label="Selected goal"></div><span class="goal-hint">The target arrangement</span></div></div>
+          <div id="goal-message" class="goal-message" hidden><strong>GOAL REACHED</strong><span>BFS FOUND THE SHORTEST SOLUTION</span></div>
+          <div class="playback-info"><span>Step <strong id="current-step">0</strong> <span class="muted">/ <span id="total-moves">—</span></span></span><span id="playback-status">Awaiting search</span></div>
+          <input id="solution-scrubber" class="scrubber" type="range" min="0" max="0" value="0" aria-label="Solution step" disabled>
+          <p id="move-explanation" class="move-explanation" aria-live="polite">Run BFS to discover a shortest solution.</p>
+          <div class="playback-controls"><button id="previous" class="button compact" disabled aria-label="Previous step">← <span>Previous</span></button><button id="play" class="button primary" disabled><svg><use href="#icon-play"/></svg>Play Animation</button><button id="next" class="button compact" disabled aria-label="Next step"><span>Next</span> →</button></div>
+          <div class="playback-secondary"><button id="reset-playback" class="text-button" disabled>Reset</button><button id="replay" class="text-button" disabled>↻ Replay</button><label for="speed">Speed</label><select id="speed"><option value="1200">Slow · 1.2 s</option><option value="600" selected>Normal · 0.6 s</option><option value="200">Fast · 0.2 s</option></select></div>
+        </article>
+        <article class="panel configuration"><div class="panel-heading"><div><h2>Puzzle configuration</h2><p>Your states, your search.</p></div><svg class="icon"><use href="#icon-grid"/></svg></div>
+          <form id="config-form" novalidate><label for="initial-input">Initial state</label><textarea id="initial-input" rows="3" spellcheck="false" aria-describedby="input-help">2 8 3
+1 6 4
+7 0 5</textarea><label for="goal-input">Goal state</label><textarea id="goal-input" rows="3" spellcheck="false" aria-describedby="input-help">1 2 3
+8 0 4
+7 6 5</textarea><p id="input-help" class="field-help">Use each number 0–8 once. 0 is the blank.<br>Separate cells with spaces or commas.</p><button class="button full" type="submit">Apply configuration</button></form>
+          <div class="configuration-tools"><button id="random" class="button compact">Generate Random Puzzle</button><button id="shuffle" class="button compact">Shuffle Puzzle</button><button id="example" class="text-button">Load Example</button><button id="reset-puzzle" class="text-button">Reset Puzzle</button></div>
+          <label class="checkbox-label"><input id="slow-search" type="checkbox"> Watch every expansion <span class="muted">(slower)</span></label>
+          <div class="search-actions"><button id="run" class="button primary full"><svg><use href="#icon-play"/></svg>Run BFS</button><button id="cancel" class="button danger" disabled>Cancel Search</button></div>
+          <p id="solver-message" class="notice" role="status">Example loaded. Ready to explore.</p>
+        </article>
+      </div>
+      <div class="section-heading"><h2>Search at a glance</h2><a class="text-link" href="#visualization">Inspect search activity ↗</a></div>
+      <div id="solver-stats" class="stats-grid"></div>
+      <div class="info-strip"><svg class="icon"><use href="#icon-info"/></svg><p><strong>Exploration is not playback.</strong> BFS may visit many states. The board above plays only the shortest path it reconstructs. <a href="#visualization">See the actual search →</a></p></div>
+    </section>
+
+    <section id="page-visualization" class="page" hidden aria-labelledby="visualization-title">
+      <div class="page-eyebrow">WORKSPACE <span>/</span> SEARCH VISUALIZATION</div><div class="page-heading"><div><h1 id="visualization-title">Inside the search.</h1><p>Real queue activity and expansion history, separate from solution playback.</p></div><a class="button" href="#solver">Back to solver <span aria-hidden="true">↗</span></a></div>
+      <div class="notice">Snapshots are captured from actual execution. Large searches are batched; previews and logs show bounded samples. Enable “Watch every expansion” in the solver for a slower, node-by-node demonstration.</div>
+      <div class="snapshot-toolbar"><label for="snapshot-range">Search snapshot <strong id="snapshot-position">0 / 0</strong></label><input id="snapshot-range" class="scrubber" type="range" min="0" max="0" value="0" disabled><button id="follow-live" class="button compact" aria-pressed="true">Following latest</button></div>
+      <div class="visualization-grid"><article class="panel"><div class="panel-heading"><h2>Current node</h2><span id="search-status" class="badge neutral">Not started</span></div><div id="search-board" class="search-board" role="img" aria-label="Current search node"></div><dl id="current-node-info" class="node-info"><dt>Depth</dt><dd>—</dd><dt>Parent</dt><dd>—</dd><dt>Move into state</dt><dd>—</dd></dl></article><article class="panel frontier-panel"><div class="panel-heading"><div><h2>Frontier queue</h2><p>FIFO · front leaves first</p></div><span id="frontier-count" class="badge neutral">0 waiting</span></div><div id="frontier" class="queue-list"><p class="empty-state">Run BFS to fill the frontier.</p></div><p id="frontier-caption" class="field-help">Up to 8 queued states are shown.</p></article></div>
+      <div class="visualization-grid"><article class="panel"><div class="panel-heading"><div><h2>Explored states</h2><p id="explored-caption">0 displayed · 0 processed</p></div><span class="badge neutral">DEQUEUE ORDER</span></div><div class="table-scroll"><table><thead><tr><th>Order</th><th>State (0 = blank)</th><th>Depth</th></tr></thead><tbody id="explored"><tr><td colspan="3" class="empty-state">No states processed yet.</td></tr></tbody></table></div></article><article class="panel"><div class="panel-heading"><div><h2>Generated successors</h2><p id="successors-caption">From the current expanded node</p></div></div><div id="successors" class="successor-list"><p class="empty-state">Successors appear during expansion.</p></div></article></div>
+      <article class="panel event-panel"><div class="panel-heading"><div><h2>Search event log</h2><p id="event-caption">Actual events, in execution order. Latest 80 retained per snapshot.</p></div><span class="badge neutral">EXECUTION TRACE</span></div><ol id="event-log" class="event-log"><li class="empty-state">No search has run yet.</li></ol></article>
+    </section>
+
+    <section id="page-guide" class="page reading-page" hidden aria-labelledby="guide-title">
+      <div class="page-eyebrow">LEARN <span>/</span> ALGORITHM GUIDE</div><div class="page-heading"><div><h1 id="guide-title">Breadth before depth.</h1><p>A practical guide to the algorithm behind the puzzle.</p></div><span class="badge">BREADTH-FIRST SEARCH</span></div>
+      <div class="guide-grid"><article class="panel prose"><h2>What is Breadth-First Search?</h2><p>BFS is an uninformed search algorithm that explores states in order of their distance from the starting state. It visits all states one move away before states two moves away, and so on.</p><h3>Why a FIFO queue?</h3><p>First in, first out means the oldest waiting state is processed next. Newly discovered neighbors join the back. A discovered set prevents cycles and repeated work; parent pointers remember how each state was first reached.</p><h3>Why is the solution shortest?</h3><p>Every tile slide costs one move. Because BFS processes states in nondecreasing depth order, the first goal removed from the queue has minimum depth. Following its parent pointers back to the start recovers a shortest path.</p></article><article class="panel code-panel"><div class="panel-heading"><h2>The algorithm</h2><span class="badge neutral">PSEUDOCODE</span></div><pre><code>validate(initial, goal)
+if parity differs: return unsolvable
+queue ← [initial]
+discovered ← {initial}
+parent[initial] ← null
+
+while queue is not empty:
+    current ← queue.dequeue()
+    if current equals goal:
+        return reconstruct(parent)
+    for each legal neighbor:
+        if neighbor not discovered:
+            mark neighbor discovered
+            parent[neighbor] ← current
+            depth[neighbor] ← depth[current] + 1
+            queue.enqueue(neighbor)
+
+return frontier_exhausted</code></pre></article></div>
+      <article class="panel"><div class="panel-heading"><div><h2>A verified example</h2><p>The walkthrough is computed by this application’s BFS, using the example initial and goal states.</p></div><button id="compute-example" class="button compact">Compute walkthrough</button></div><div id="walkthrough" class="walkthrough"><p class="empty-state">Compute the example to see every verified transition. No solution is hardcoded.</p></div></article>
+      <div class="guide-grid"><article class="panel prose"><h2>Properties &amp; advantages</h2><dl class="definition-list"><dt>Complete</dt><dd>Graph BFS with duplicate detection finds any reachable goal in this finite puzzle graph.</dd><dt>Optimal</dt><dd>It returns a minimum-move path because every edge has the same positive cost.</dd><dt>Path cost</dt><dd>One unit per legal slide. A solution at depth d costs d moves.</dd><dt>Search depth</dt><dd>The number of edges from the start. The initial state is depth 0.</dd><dt>Easy to explain</dt><dd>A queue, discovered set, and parent map make the search straightforward to implement and visualize.</dd></dl></article><article class="panel prose"><h2>Complexity &amp; limitations</h2><p><strong>Graph search:</strong> time O(V + E), space O(V). V is the number of reachable states and E the legal connections between them. An 8-puzzle parity component contains 181,440 states.</p><p><strong>Tree-search estimate:</strong> time and space are commonly written O(b<sup>d</sup>), where b is the branching factor and d the shallowest goal depth. With goal checks on removal, a literal tree search may generate a level beyond d; some texts write O(b<sup>d+1</sup>) for generation time. These bounds summarize growth, not measured runtime.</p><p>BFS stores discovered states, parent information, and a potentially large frontier. Difficult puzzles take more time and memory. This application yields between batches and supports safe cancellation.</p></article></div>
+      <p class="source-note">Further reading: <a href="https://algs4.cs.princeton.edu/41graph/" target="_blank" rel="noreferrer">Princeton Algorithms: undirected graphs and breadth-first paths ↗</a></p>
+    </section>
+
+    <section id="page-comparison" class="page" hidden aria-labelledby="comparison-title">
+      <div class="page-eyebrow">ANALYZE <span>/</span> PERFORMANCE COMPARISON</div><div class="page-heading"><div><h1 id="comparison-title">Measure what actually ran.</h1><p>Real BFS measurements alongside theoretical search properties.</p></div><span class="badge">BFS IS THE EXECUTABLE ALGORITHM</span></div>
+      <article class="panel"><div class="panel-heading"><div><h2>Your BFS runs</h2><p>Latest 12 runs in this tab. Times include cooperative scheduling and visualization delays.</p></div><button id="clear-runs" class="button compact" disabled>Clear history</button></div><div id="run-history"><div class="empty-state spacious"><svg class="icon"><use href="#icon-chart"/></svg><h3>No measurements yet.</h3><p>Run a puzzle to record actual search statistics.</p><a class="text-link" href="#solver">Open Puzzle Solver →</a></div></div></article>
+      <article class="panel comparison-panel"><div class="panel-heading"><div><h2>Six approaches to search</h2><p>Only BFS is implemented. All other rows describe theory; they contain no execution measurements.</p></div></div><div class="table-scroll"><table class="comparison-table"><thead><tr><th>Algorithm / strategy</th><th>Heuristic</th><th>Complete?</th><th>Optimal?</th><th>Time</th><th>Space</th><th>Advantage / limitation</th><th>Status</th></tr></thead><tbody>
+      <tr><th>BFS<small>Shallowest first · FIFO</small></th><td>No</td><td>Yes¹</td><td>Yes²</td><td>O(V + E)<small>Graph search</small></td><td>O(V)</td><td>Shortest equal-cost path; large frontier.</td><td><span class="badge">Implemented</span></td></tr>
+      <tr><th>DFS<small>Deepest first · stack</small></th><td>No</td><td>Finite graph¹</td><td>No</td><td>O(b<sup>m</sup>)</td><td>O(bm)</td><td>Low tree-search memory; may follow deep, unhelpful paths.</td><td>Theory only</td></tr>
+      <tr><th>DLS<small>Depth-limited DFS</small></th><td>No</td><td>If ℓ ≥ d</td><td>No</td><td>O(b<sup>ℓ</sup>)</td><td>O(bℓ)</td><td>Bounds search depth; can cut off a solution.</td><td>Theory only</td></tr>
+      <tr><th>IDDLS<small>Iterative deepening DLS</small></th><td>No</td><td>Yes³</td><td>Yes²</td><td>O(b<sup>d</sup>)</td><td>O(bd)</td><td>Shallowest goal with little memory; repeats expansions.</td><td>Theory only</td></tr>
+      <tr><th>GBFS<small>Lowest h(n) first</small></th><td>Yes</td><td>Finite graph¹</td><td>No</td><td>O(b<sup>m</sup>)</td><td>O(b<sup>m</sup>)</td><td>Heuristic can guide quickly; can be misled.</td><td>Theory only</td></tr>
+      <tr><th>A*<small>Lowest g(n) + h(n)</small></th><td>Yes</td><td>Yes⁴</td><td>Yes⁴</td><td>Exponential worst case</td><td>Exponential worst case</td><td>Balances cost and estimate; can still consume much memory.</td><td>Theory only</td></tr>
+      </tbody></table></div><div class="comparison-notes"><p>V = states; E = edges; b = branching factor; d = shallowest goal depth; m = maximum depth; ℓ = depth limit. DFS/DLS/IDDLS/GBFS bounds are conventional tree-search estimates with b &gt; 1. Keeping all visited states adds O(V) space to graph variants.</p><p>¹ Finite graph with duplicate detection. ² Equal positive edge costs. ³ Finite branching with a reachable goal at finite depth. ⁴ Finite branching and costs bounded below by a positive value; admissible heuristic with reopening, or consistent heuristic for graph A* without reopening.</p></div></article>
+      <article class="panel prose"><h2>What do these numbers count?</h2><p><strong>Generated:</strong> unique discovered states, including the initial state. <strong>Expanded:</strong> dequeued and processed states, including the goal. <strong>Maximum depth:</strong> deepest discovered state, which can exceed the solution depth. <strong>Solution depth / moves:</strong> goal depth / number of path transitions.</p><p><strong>Time:</strong> wall-clock milliseconds from performance.now(), including yielding and optional demonstration delays. <strong>Memory estimate:</strong> 96 bytes per discovered record plus 8 bytes per retained queue slot. It excludes browser, DOM, and trace overhead and is not a browser heap measurement.</p></article>
+    </section>
+
+    <section id="page-about" class="page reading-page" hidden aria-labelledby="about-title">
+      <div class="page-eyebrow">THE PROJECT <span>/</span> ABOUT</div><div class="page-heading"><div><h1 id="about-title">A laboratory for learning.</h1><p>Interactive 8-Puzzle Problem Solver Using AI Search Algorithms</p></div><span class="badge">ARTIFICIAL INTELLIGENCE</span></div>
+      <div class="about-intro panel"><span class="brand-mark"><svg><use href="#icon-puzzle"/></svg></span><div><h2>AI Puzzle Lab</h2><p>Developed for the Artificial Intelligence Digital Assignment by <strong>Shaunak Dutta</strong>.</p><p>Assigned algorithm: <strong>Breadth-First Search (BFS)</strong></p></div></div>
+      <div class="guide-grid"><article class="panel prose"><h2>The problem</h2><p>The 8-Puzzle contains eight numbered tiles and one empty cell on a 3 × 3 board. Only tiles next to the blank may slide. The task is to transform an initial arrangement into a chosen goal using the fewest legal moves.</p><h3>Our approach</h3><p>Represent arrangements as states in a graph. Apply parity validation, explore that graph with a FIFO queue, record parent pointers, and reconstruct the shortest solution once BFS dequeues the goal.</p><h3>Objectives</h3><ul><li>Make state-space search visible and understandable.</li><li>Find a shortest path with genuine JavaScript BFS.</li><li>Connect real search data to interactive visualization.</li><li>Explain the cost of exhaustive search with honest measurements.</li></ul></article><article class="panel prose"><h2>Built to be explored</h2><ul><li>Custom initial and goal states with parity validation.</li><li>Solvable random puzzles and legal manual moves.</li><li>Smooth tile animation with full playback controls.</li><li>Live frontier, explored states, successors, and bounded event logs.</li><li>Actual statistics and theoretical algorithm comparisons.</li></ul><h3>Technologies</h3><p>HTML5, CSS3, CSS Grid, CSS transitions, and JavaScript ES modules. Static hosting with GitHub Pages; no application server or external AI service.</p><h3>Learning outcomes</h3><p>Understand graph representations, FIFO exploration, duplicate detection, parity, optimality for equal-cost moves, path reconstruction, and the time–space tradeoff of BFS.</p></article></div>
+    </section>
+    <footer class="footer"><span>AI Puzzle Lab <span aria-hidden="true">·</span> Built for curious minds.</span><span>8 tiles. Every move matters.</span></footer>
+  </main>
+</body>
+</html>
